@@ -31,11 +31,10 @@ def connect(host, port, i):
 @cli.command()
 @click.argument('PORT', default=8080, type=int)
 @click.option('--port', type=int, help='specify port-number')
-def listen(port):
+def listen(port, host):
     '''run in server mode and listens on port --port. defaults to port 8080'''
     click.echo('starting a TCP server on port {}'.format(port))
-    s = server.listening2()
-    server.handle_client(s)
+    server.handle_client(host, port)
 
 
 if __name__ == '__main__':
