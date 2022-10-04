@@ -34,8 +34,3 @@ def interactive_mode(host, port):
     s.shutdown(socket.SHUT_WR)
     s.shutdown(socket.SHUT_RD)
     s.close()
-
-
-
-
-
