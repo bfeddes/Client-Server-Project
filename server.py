@@ -24,7 +24,7 @@ def handle_client(sock, addr):
         sock.close
 
 
-if __name__ == '__main__':
+def listening():
     print('<{}> thread handling main loop'.format(threading.current_thread().getName()))
 
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,8 +34,7 @@ if __name__ == '__main__':
 
     while True:
         client_sock, remote_addr = s.accept()
-        print('<{}> [+] connection from {}, spinning a new thread to handle it'.format(threading.current_thread()
+        print('<{}> - [+] connection from {}, spinning a new thread to handle it'.format(threading.current_thread()
                                                                                        .getName(), remote_addr))
-
         thread = threading.Thread(target=handle_client, args=[client_sock, remote_addr], daemon=True)
         thread.start()
