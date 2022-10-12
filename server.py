@@ -1,6 +1,5 @@
 import socket
 import threading
-PORT = 8080
 
 
 class ConnectionClosed(Exception):
@@ -22,7 +21,7 @@ def receive_line(conn): # receive a single line that ends with a period
 
 
 def handle_client(conn):
-    while True: #handle multiple lines until a disconnection
+    while True: 
         try:
             line = receive_line(conn)
             conn.sendall('Echo: {}'.format(line).encode('utf-8'))
