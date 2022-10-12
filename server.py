@@ -19,29 +19,26 @@ def receive_line(conn):
     return ''.join(chunks)
 
 
-def handle_client(conn):
-    thread_count = 1
+def handle_client(conn, remote_addr):
     while True:
         try:
             line = receive_line(conn)
             conn.sendall('Echo: {}'.format(line).encode('utf-8'))
         except ConnectionClosed:
-            print('<Thread-{}> closed connection.'.format(thread_count))
+            print('<{}> thread handling main loop'.format(threading.current_thread().getName(), remote_addr))
             break
 
 
 def listen():
     print('<{}> thread handling main loop'.format(threading.current_thread().getName()))
-    thread_count = 1
+    thread_count = 0
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
     s.bind(('0.0.0.0', 8080))
     s.listen(20)
     while True:
         conn, remote_addr = s.accept()
-        print('<Thread-{}> - [+] connection from {}, spinning a new thread to handle it.'.format
-              (thread_count, remote_addr))
-        thread = threading.Thread(target=handle_client, args=[conn], daemon=True)
         thread_count += 1
+        print('<Thread-{}> - [+] connection from {}, spinning a new thread to handle it.'
+              .format(thread_count, remote_addr))
+        thread = threading.Thread(target=handle_client, args=[conn, remote_addr], daemon=True)
         thread.start()
-
