@@ -5,7 +5,6 @@
 import click
 import server
 import client
-
 # ***NEED TO WORK ON INTERACTIVE MODE.***
 
 
@@ -33,7 +32,8 @@ def connect(host, port, i):
 @click.option('--port', type=int, help='specify port-number')
 def listen(port):
     '''run in server mode and listens on port --port. defaults to port 8080'''
-    s = server.listening()
+    click.echo('Starting a server on port {}'.format(port))
+    s = server.listen()
     server.handle_client(s)
 
 

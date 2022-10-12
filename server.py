@@ -3,38 +3,41 @@ import threading
 PORT = 8080
 
 
-def handle_client(sock, addr):
-    try:
-        print('<{}> thread to handle {}'.format(threading.current_thread().getName(), addr))
-
-        chunks = []
-        while True:
-            data = sock.recv(4096)
-            if not data:
-                break
-            chunks.append(data.decode('utf-8'))
-
-        msg = ''.join(chunks)
-        sock.sendall(msg.encode('utf-8'))
-    except (ConnectionError, BrokenPipeError):
-        print('Socket error')
-    finally:
-        print('<{}> - closed connection to {}'.format(threading.current_thread().getName(), addr))
-        sock.shutdown(socket.SHUT_RDWR)
-        sock.close
+class ConnectionClosed(Exception):
+    pass
 
 
-def listening():
-    print('<{}> thread handling main loop'.format(threading.current_thread().getName()))
-
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-    s.bind(('0.0.0.0', PORT))
-    s.listen(20)
-
+def receive_line(conn): # receive a single line that ends with a period
+    chunks = []
     while True:
-        client_sock, remote_addr = s.accept()
-        print('<{}> - [+] connection from {}, spinning a new thread to handle it'.format(threading.current_thread()
-                                                                                       .getName(), remote_addr))
-        thread = threading.Thread(target=handle_client, args=[client_sock, remote_addr], daemon=True)
+        data = conn.recv(2000)
+        if not data:
+            raise ConnectionClosed()
+
+        chunks.append(data.decode('utf-8'))
+        if ''.join(chunks).endswith('.'):
+            break
+
+    return ''.join(chunks)
+
+
+def handle_client(conn):
+    while True: #handle multiple lines until a disconnection
+        try:
+            line = receive_line(conn)
+            conn.sendall('Echo: {}'.format(line).encode('utf-8'))
+        except ConnectionClosed:
+            break
+        print('closed connection')
+
+
+def listen():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('0.0.0.0', 8080))
+    s.listen(20)
+    while True:
+        conn, remote_addr = s.accept()
+        print('[+] connection from {}'.format(remote_addr))
+        thread = threading.Thread(target=handle_client, args=[conn], daemon=True)
         thread.start()
+
