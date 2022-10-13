@@ -25,7 +25,7 @@ def handle_client(conn, remote_addr):
             line = receive_line(conn)
             conn.sendall('Echo: {}'.format(line).encode('utf-8'))
         except ConnectionClosed:
-            print('<{}> thread handling main loop'.format(threading.current_thread().getName(), remote_addr))
+            print('<{}> [-] closed connection to {}'.format(threading.current_thread().getName(), remote_addr))
             break
 
 
