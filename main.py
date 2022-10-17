@@ -1,11 +1,7 @@
-# Brian Feddes
-# Client-Server Computing
-# Professor Safwan Omari
-# Echo client-server
+# Program 2
 import click
 import server
 import client
-# ***NEED TO WORK ON INTERACTIVE MODE.***
 
 
 @click.group()
@@ -14,11 +10,17 @@ def cli():
 
 
 @cli.command()
+@click.argument('n', default=50, type=int)
+def load_test(n):
+    client.load_testing(n)
+
+
+@cli.command()
 @click.argument('HOST', default='127.0.0.1')
 @click.argument('PORT', default=8080, type=int)
 @click.option('--i', is_flag=True, help='interactive mode')
 def connect(host, port, i):
-    '''connects to a TCP server on HOST PORT. defaults to localhost 8080'''
+    '''connects to a TCP server on HOST PORT.'''
     click.echo('connecting to {} on port {}'.format(host, port))
     if i:
         click.echo("interactive mode")
@@ -29,11 +31,10 @@ def connect(host, port, i):
 
 @cli.command()
 @click.argument('PORT', default=8080, type=int)
-@click.option('--port', type=int, help='specify port-number')
 def listen(port):
-    '''run in server mode and listens on port --port. defaults to port 8080'''
-    click.echo('Starting a server on port {}'.format(port))
-    s = server.listen()
+    '''starts a TCP server'''
+    click.echo('starting a TCP server on port {}'.format(port))
+    s = server.listen_concurrent()
     server.handle_client(s)
 
 

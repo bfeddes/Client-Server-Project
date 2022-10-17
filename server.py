@@ -29,7 +29,7 @@ def handle_client(conn, remote_addr):
             break
 
 
-def listen():
+def listen_concurrent():
     print('<{}> thread handling main loop'.format(threading.current_thread().getName()))
     thread_count = 0
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -42,3 +42,18 @@ def listen():
               .format(thread_count, remote_addr))
         thread = threading.Thread(target=handle_client, args=[conn, remote_addr], daemon=True)
         thread.start()
+
+
+def listen_serial():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.bind(('0.0.0.0', 8080))
+    s.listen(20)
+
+    while True:
+        conn, remote_addr = s.accept()
+        print('[+] connection from {}'.format(remote_addr))
+        handle_client(conn, remote_addr)
+        print('[-] disconnected from {}'.format(remote_addr))
+        conn.shutdown(socket.SHUT_RDWR)
+        conn.close()
+
